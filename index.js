@@ -6,7 +6,7 @@ const {
     HarmBlockThreshold
 } = require("@google/generative-ai");
 
-require("dotenv").config()
+require("dotenv").config();
 // Replace with your actual Gemini API key
 const apiKey = process.env.GEMINI_API_KEY;
 
@@ -66,10 +66,19 @@ const generationConfig = {
 const tenConversation = [];
 async function handleGeminiRequest(req, res) {
     try {
-        const prompt = req.body.prompt;
+        // let prompt = req.body.prompt;
+        const prompt = req.body.prompt || req.query.prompt || req.params.prompt;
+        const systemPrompt =
+            req.body.systemPrompt ||
+            req.query.systemPrompt ||
+            req.params.systemPrompt;
+
         if (!prompt) {
             return res.send({ error: "prompt name should prompt" });
         }
+
+        // prompt = prompt.replaceAll("/n", /\n/);
+
         const prevHistory = await getHistory();
         // console.log({ prevHistory });
         const chatSession = model.startChat({
@@ -137,25 +146,25 @@ async function handleGeminiRequest(req, res) {
                 //                         }
                 //                     ]
                 //                 },
-                //...(await getHistory())
-                ...prevHistory,
-//                 {
-//                     role: "user",
-//                     parts: [
-//                         {
-//                             text: '{"conversation":"यदि मैं बोलूं किसी वस्तु या चीज या पर्सनल या रिलेशनशिप या अन्य कोई जानकारी के बारे में जो तुम्हें पता नहीं था तब भी तुमको बोलना है कि \'han mujhe ye jankari nahi thi\' ok","IndianTime":"Tue Jul 30 2024 23:07:56 GMT+0530 (India Standard Time)"}'
-//                         }
-//                     ]
-//                 },
-//                 {
-//                     role: "model",
-//                     parts: [
-//                         {
-//                             text: '{"response": "ठीक है, मैं ऐसा ही करूँगा। अब जब आप कोई नई जानकारी बताएँगे, चाहे वो किसी वस्तु, चीज, व्यक्तिगत या संबंध या अन्य कोई जानकारी के बारे में हो, अगर मुझे उसके बारे में पहले से जानकारी नहीं होगी तो मैं \\"हाँ मुझे ये जानकारी नहीं थी\\" जरूर कहूँगा। "}\n'
-//                         }
-//                     ]
-//                 },
-               /// ...tenConversation
+                // ...(await getHistory()),
+                ...prevHistory
+                //                 {
+                //                     role: "user",
+                //                     parts: [
+                //                         {
+                //                             text: '{"conversation":"यदि मैं बोलूं किसी वस्तु या चीज या पर्सनल या रिलेशनशिप या अन्य कोई जानकारी के बारे में जो तुम्हें पता नहीं था तब भी तुमको बोलना है कि \'han mujhe ye jankari nahi thi\' ok","IndianTime":"Tue Jul 30 2024 23:07:56 GMT+0530 (India Standard Time)"}'
+                //                         }
+                //                     ]
+                //                 },
+                //                 {
+                //                     role: "model",
+                //                     parts: [
+                //                         {
+                //                             text: '{"response": "ठीक है, मैं ऐसा ही करूँगा। अब जब आप कोई नई जानकारी बताएँगे, चाहे वो किसी वस्तु, चीज, व्यक्तिगत या संबंध या अन्य कोई जानकारी के बारे में हो, अगर मुझे उसके बारे में पहले से जानकारी नहीं होगी तो मैं \\"हाँ मुझे ये जानकारी नहीं थी\\" जरूर कहूँगा। "}\n'
+                //                         }
+                //                     ]
+                //                 },
+                /// ...tenConversation
             ]
         });
         // console.log(JSON.stringify(tenConversation, null, 2));
@@ -163,7 +172,7 @@ async function handleGeminiRequest(req, res) {
         const conversationTime = Date();
         const chat = {
             conversation: prompt,
-            IndianTime: Date()
+            Time: Date()
         };
         const result = await chatSession.sendMessage(
             // prompt + " (Time and date: " + conversationTime + ")"
